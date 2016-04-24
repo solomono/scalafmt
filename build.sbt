@@ -111,6 +111,7 @@ lazy val core = project
   .settings(allSettings)
   .settings(
     moduleName := "scalafmt-core",
+    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.1.1",
       "org.scalameta" %% "scalameta" % Deps.scalameta,
@@ -124,7 +125,8 @@ lazy val core = project
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
       "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
-    )
+    ),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
 

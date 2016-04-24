@@ -1,9 +1,9 @@
 package org.scalafmt.internal
 
+import org.scalafmt.util.Whitespace
 import org.scalafmt.util.TokenOps._
 import scala.collection.mutable
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.Whitespace
 import scala.meta.tokens.Tokens
 
 /**
@@ -19,9 +19,9 @@ import scala.meta.tokens.Tokens
   */
 case class FormatToken(left: Token,
                        right: Token,
-                       between: Vector[Whitespace]) {
+                       between: Vector[Token]) {
 
-  override def toString = s"${left.code}∙${right.code}"
+  override def toString = s"${left.syntax}∙${right.syntax}"
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true
@@ -45,9 +45,9 @@ object FormatToken {
   def formatTokens(tokens: Tokens): Array[FormatToken] = {
     var left = tokens.head
     val result = Array.newBuilder[FormatToken]
-    val whitespace = Vector.newBuilder[Whitespace]
+    val whitespace = Vector.newBuilder[Token]
     tokens.toArray.foreach {
-      case t: Whitespace => whitespace += t
+      case t @ Whitespace() => whitespace += t
       case right =>
         val tok = FormatToken(left, right, whitespace.result)
         result += tok

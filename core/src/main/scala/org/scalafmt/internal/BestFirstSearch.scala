@@ -85,7 +85,7 @@ class BestFirstSearch(
     val leftLeftOwner = ownersMap(hash(leftLeft))
     val splitToken = tokens(curr.splits.length)
     recurseOnBlocks && isInsideNoOptZone(splitToken) &&
-    leftLeft.isInstanceOf[`{`] &&
+    leftLeft.is[LeftBrace] &&
     matchingParentheses(hash(leftLeft)) != stop && {
       // Block must span at least 3 lines to be worth recursing.
       val close = matchingParentheses(hash(leftLeft))
@@ -96,9 +96,9 @@ class BestFirstSearch(
 
   def provided(formatToken: FormatToken): Split = {
     // TODO(olafur) the indentation is not correctly set.
-    val split = Split(Provided(formatToken.between.map(_.code).mkString), 0)
+    val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
     val result =
-      if (formatToken.left.isInstanceOf[`{`])
+      if (formatToken.left.is[LeftBrace])
         split.withIndent(
             Num(2), matchingParentheses(hash(formatToken.left)), Right)
       else split
@@ -160,7 +160,7 @@ class BestFirstSearch(
       if (hasReachedEof(curr) || {
             val token = tokens(curr.splits.length)
             // If token is empty we can take one more split before reaching stop.
-            token.left.code.nonEmpty && token.left.start >= stop.start
+            token.left.syntax.nonEmpty && token.left.start >= stop.start
           }) {
         result = curr
         Q.dequeueAll

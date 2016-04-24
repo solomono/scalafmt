@@ -22,17 +22,17 @@ class FormatWriter(formatOps: FormatOps) {
     reconstructPath(tokens, splits, style) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
-          case c: Comment if c.code.startsWith("/*") =>
+          case c: Comment if c.syntax.startsWith("/*") =>
             sb.append(formatComment(c, state.indentation))
-          case token: Interpolation.Part =>
+          case token @ Interpolation.Part(_) =>
             sb.append(formatMarginizedString(token, state.indentation))
-          case literal: Literal.String => // Ignore, see below.
-          case token => sb.append(token.code)
+          case literal: Constant.String => // Ignore, see below.
+          case token => sb.append(token.syntax)
         }
         sb.append(whitespace)
         formatToken.right match {
           // state.column matches the end of formatToken.right
-          case literal: Literal.String =>
+          case literal: Constant.String =>
             val column =
               if (state.splits.last.modification.isNewline) state.indentation
               else lastState.column + whitespace.length
@@ -45,21 +45,21 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def formatComment(comment: Comment, indent: Int): String = {
-    val isDocstring = comment.code.startsWith("/**")
+    val isDocstring = comment.syntax.startsWith("/**")
     val spaces: String =
       if (isDocstring && style.scalaDocs) " " * (indent + 2)
       else " " * (indent + 1)
-    comment.code.replaceAll("\n *\\*", s"\n$spaces\\*")
+    comment.syntax.replaceAll("\n *\\*", s"\n$spaces\\*")
   }
 
   private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!style.alignStripMarginStrings) token.code
-    else if (token.isInstanceOf[Interpolation.Part] ||
+    if (!style.alignStripMarginStrings) token.syntax
+    else if (token.is[Interpolation.Part] ||
              isMarginizedString(token)) {
       val spaces = " " * indent
-      token.code.replaceAll("\n *\\|", s"\n$spaces\\|")
+      token.syntax.replaceAll("\n *\\|", s"\n$spaces\\|")
     } else {
-      token.code
+      token.syntax
     }
   }
 
@@ -132,7 +132,7 @@ class FormatWriter(formatOps: FormatOps) {
       val token = location.formatToken.right
       val code = token match {
         case c: Comment if isInlineComment(c) => "//"
-        case t => t.code
+        case t => t.syntax
       }
       style.alignMap.get(code).map { ownerRegexp =>
         val owner = owners(token) match {
@@ -222,11 +222,11 @@ class FormatWriter(formatOps: FormatOps) {
                       val previousLocation = line(column - 1)
                       val previousColumn =
                         previousLocation.state.column -
-                        previousLocation.formatToken.right.code.length
+                        previousLocation.formatToken.right.syntax.length
                       line(column).state.column - previousColumn
                     }
                   val key =
-                    columnWidth - line(column).formatToken.right.code.length
+                    columnWidth - line(column).formatToken.right.syntax.length
                   key -> line(column)
                 }
               }

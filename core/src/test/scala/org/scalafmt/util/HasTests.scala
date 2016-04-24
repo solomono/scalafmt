@@ -160,7 +160,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
       case (_, token, whitespace) =>
         builder += FormatOutput(
-            token.left.code, whitespace, Debug.formatTokenExplored(token))
+            token.left.syntax, whitespace, Debug.formatTokenExplored(token))
     }
     builder.result()
   }

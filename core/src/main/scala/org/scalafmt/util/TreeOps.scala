@@ -60,7 +60,7 @@ object TreeOps {
   def getDequeueSpots(tree: Tree): Set[TokenHash] = {
     val ret = Set.newBuilder[TokenHash]
     tree.tokens.foreach {
-      case t: `else` =>
+      case t @ Else() =>
         ret += hash(t)
       case _ =>
     }
@@ -77,7 +77,7 @@ object TreeOps {
       }
     }
 
-    def addDefn[T <: Keyword : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+    def addDefn[T : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
       addAll(annotations)
@@ -97,18 +97,18 @@ object TreeOps {
 
     def loop(x: Tree): Unit = {
       x match {
-        case t: Defn.Class => addDefn[`class `](t.mods, t)
-        case t: Defn.Def => addDefn[`def`](t.mods, t)
-        case t: Decl.Def => addDefn[`def`](t.mods, t)
-        case t: Ctor.Secondary => addDefn[`def`](t.mods, t)
-        case t: Defn.Object => addDefn[`object`](t.mods, t)
-        case t: Defn.Trait => addDefn[`trait`](t.mods, t)
-        case t: Defn.Type => addDefn[`type`](t.mods, t)
-        case t: Decl.Type => addDefn[`type`](t.mods, t)
-        case t: Defn.Val => addDefn[`val`](t.mods, t)
-        case t: Decl.Val => addDefn[`val`](t.mods, t)
-        case t: Defn.Var => addDefn[`var`](t.mods, t)
-        case t: Decl.Var => addDefn[`var`](t.mods, t)
+        case t: Defn.Class => addDefn[KwClass](t.mods, t)
+        case t: Defn.Def => addDefn[KwDef](t.mods, t)
+        case t: Decl.Def => addDefn[KwDef](t.mods, t)
+        case t: Ctor.Secondary => addDefn[KwDef](t.mods, t)
+        case t: Defn.Object => addDefn[KwObject](t.mods, t)
+        case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
+        case t: Defn.Type => addDefn[KwType](t.mods, t)
+        case t: Decl.Type => addDefn[KwType](t.mods, t)
+        case t: Defn.Val => addDefn[KwVal](t.mods, t)
+        case t: Decl.Val => addDefn[KwVal](t.mods, t)
+        case t: Defn.Var => addDefn[KwVar](t.mods, t)
+        case t: Decl.Var => addDefn[KwVar](t.mods, t)
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
@@ -127,9 +127,9 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Token]
     var stack = List.empty[Token]
     tokens.foreach {
-      case open @ (_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
+      case open @ (LeftBrace() | LeftBracket() | LeftParen() | Interpolation.Start()) =>
         stack = open :: stack
-      case close @ (_: `}` | _: `]` | _: `)` | _: Interpolation.End) =>
+      case close @ (RightBrace() | RightBracket() | RightParen() | Interpolation.End()) =>
         val open = stack.head
         assertValidParens(open, close)
         ret += hash(open) -> close
@@ -143,10 +143,10 @@ object TreeOps {
 
   def assertValidParens(open: Token, close: Token): Unit = {
     (open, close) match {
-      case (_: Interpolation.Start, _: Interpolation.End) =>
-      case (_: `{`, _: `}`) =>
-      case (_: `[`, _: `]`) =>
-      case (_: `(`, _: `)`) =>
+      case (Interpolation.Start(), Interpolation.End()) =>
+      case (LeftBrace(), RightBrace()) =>
+      case (LeftBracket(), RightBracket()) =>
+      case (LeftParen(), RightParen()) =>
       case (o, c) =>
         throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
     }
@@ -223,7 +223,7 @@ object TreeOps {
     * `(a(1))` will parse into the same tree as `a(1)`.
     */
   def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
-    open.isInstanceOf[`(`] && !isTuple(owner) &&
+    open.is[LeftParen] && !isTuple(owner) &&
     owner.tokens.headOption.contains(open)
   }
 

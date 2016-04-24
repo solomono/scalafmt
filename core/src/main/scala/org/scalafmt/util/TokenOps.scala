@@ -56,7 +56,7 @@ object TokenOps {
   }
 
   def isDocstring(token: Token): Boolean = {
-    token.isInstanceOf[Comment] && token.code.startsWith("/**")
+    token.isInstanceOf[Comment] && token.syntax.startsWith("/**")
   }
 
   def lastToken(tree: Tree): Token = {
@@ -68,12 +68,12 @@ object TokenOps {
     else tree.tokens(lastIndex)
   }
 
-  def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
-    between.lastOption.exists(_.isInstanceOf[`\n`])
+  def endsWithNoIndent(between: Vector[Token]): Boolean =
+    between.lastOption.exists(_.is[LF])
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
     formatToken.right.isInstanceOf[Comment] &&
-    formatToken.right.code.startsWith("//") &&
+    formatToken.right.syntax.startsWith("//") &&
     endsWithNoIndent(formatToken.between)
 
   val booleanOperators = Set("&&", "||")
@@ -82,17 +82,17 @@ object TokenOps {
   val newlineOkOperators = Set("+", "-")
 
   def isBoolOperator(token: Token): Boolean =
-    booleanOperators.contains(token.code)
+    booleanOperators.contains(token.syntax)
 
   def newlineOkOperator(token: Token): Boolean =
-    booleanOperators.contains(token.code) ||
-    newlineOkOperators.contains(token.code)
+    booleanOperators.contains(token.syntax) ||
+    newlineOkOperators.contains(token.syntax)
 
   // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
   val specialAssignmentOperators = Set("<=", ">=", "!=")
 
   def isAssignmentOperator(token: Token): Boolean = {
-    val code = token.code
+    val code = token.syntax
     code.last == '=' && code.head != '=' &&
     !specialAssignmentOperators.contains(code)
   }
@@ -109,7 +109,7 @@ object TokenOps {
   }
 
   def identModification(ident: Ident): Modification = {
-    val lastCharacter = ident.code.last
+    val lastCharacter = ident.syntax.last
     if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')
       NoSplit
     else Space
@@ -117,13 +117,13 @@ object TokenOps {
 
   def isOpenApply(token: Token, includeCurly: Boolean = false): Boolean =
     token match {
-      case _: `(` | _: `[` => true
-      case _: `{` if includeCurly => true
+      case LeftParen() | LeftBracket() => true
+      case LeftBrace() if includeCurly => true
       case _ => false
     }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = tok match {
-    case FormatToken(_: `@`, _: Ident, _) => true
+    case FormatToken(At(), Ident(_), _) => true
     case _ => false
   }
 
@@ -144,11 +144,11 @@ object TokenOps {
   }
 
   def isInlineComment(token: Token): Boolean = token match {
-    case c: Comment => c.code.startsWith("//")
+    case c: Comment => c.syntax.startsWith("//")
     case _ => false
   }
 
-  def newlines2Modification(between: Vector[Whitespace]): Modification =
+  def newlines2Modification(between: Vector[Token]): Modification =
     newlinesBetween(between) match {
       case 0 => Space
       case x => Newline(x == 2, endsWithNoIndent(between))
@@ -156,10 +156,10 @@ object TokenOps {
 
   // TODO(olafur) calculate this once inside getSplits.
 
-  def newlinesBetween(between: Vector[Whitespace]): Int =
-    between.count(_.isInstanceOf[`\n`])
+  def newlinesBetween(between: Vector[Token]): Int =
+    between.count(_.is[LF])
 
-  def isAttachedComment(token: Token, between: Vector[Whitespace]) =
+  def isAttachedComment(token: Token, between: Vector[Token]) =
     isInlineComment(token) && newlinesBetween(between) == 0
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
@@ -171,7 +171,7 @@ object TokenOps {
   }
 
   def tokenLength(token: Token): Int = token match {
-    case lit: Literal.String =>
+    case lit: Constant.String =>
       // Even if the literal is not strip margined, we use the longest line
       // excluding margins. The will only affect is multiline string literals
       // with a short first line but long lines inside, example:
@@ -182,20 +182,20 @@ object TokenOps {
       //
       // In this case, we would put a newline before """short and indent by
       // two.
-      lit.code.lines.map(_.replaceFirst(" *|", "").length).max
+      lit.syntax.lines.map(_.replaceFirst(" *|", "").length).max
     case _ =>
-      val firstNewline = token.code.indexOf('\n')
-      if (firstNewline == -1) token.code.length
+      val firstNewline = token.syntax.indexOf('\n')
+      if (firstNewline == -1) token.syntax.length
       else firstNewline
   }
 
   def isFormatOn(token: Token): Boolean = token match {
-    case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true
+    case c: Comment if formatOnCode.contains(c.syntax.toLowerCase) => true
     case _ => false
   }
 
   def isFormatOff(token: Token): Boolean = token match {
-    case c: Comment if formatOffCode.contains(c.code.toLowerCase) => true
+    case c: Comment if formatOffCode.contains(c.syntax.toLowerCase) => true
     case _ => false
   }
 
