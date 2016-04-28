@@ -232,7 +232,7 @@ class Router(formatOps: FormatOps) {
           .getOrElse(rightOwner.tokens.last)
 
         val spaceCouldBeOk =
-          oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+          oldNewlines == 0 && !left.is[Comment] &&
           right.is[Keyword] &&
           isSingleIdentifierAnnotation(prev(tok))
         Seq(
@@ -436,11 +436,11 @@ class Router(formatOps: FormatOps) {
         val oneArgOneLine = OneArgOneLineSplit(open)
 
         val modification =
-          if (right.isInstanceOf[Comment]) newlines2Modification(between)
+          if (right.is[Comment]) newlines2Modification(between)
           else NoSplit
 
         val newlineModification: Modification =
-          if (right.isInstanceOf[Comment] && newlinesBetween(between) == 0)
+          if (right.is[Comment] && newlinesBetween(between) == 0)
             Space
           else Newline
 
@@ -509,7 +509,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
-          tok.right.isInstanceOf[Comment] && newlinesBetween(tok.between) == 0
+          tok.right.is[Comment] && newlinesBetween(tok.between) == 0
         val penalizeNewlineInNextArg: Policy =
           argumentStarts.get(hash(right)) match {
             case Some(nextArg) if isBinPack(leftOwner) =>

@@ -113,7 +113,7 @@ class FormatOps(val tree: Tree,
 
   @tailrec
   final def nextNonComment(curr: FormatToken): FormatToken = {
-    if (!curr.right.isInstanceOf[Comment]) curr
+    if (!curr.right.is[Comment]) curr
     else {
       val tok = next(curr)
       if (tok == curr) curr
@@ -159,7 +159,7 @@ class FormatOps(val tree: Tree,
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-    (tok.right.isInstanceOf[Comment] &&
+    (tok.right.is[Comment] &&
         tok.between.exists(_.is[LF]) && startsStatement(next(tok)))
   }
 
@@ -211,7 +211,7 @@ class FormatOps(val tree: Tree,
           // TODO(olafur) what the right { decides to be single line?
           !right.is[LeftBrace] &&
           // If comment is bound to comma, see unit/Comment.
-          (!right.isInstanceOf[Comment] ||
+          (!right.is[Comment] ||
               between.exists(_.is[LF])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)

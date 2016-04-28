@@ -93,7 +93,7 @@ object State {
     val splitWithPenalty = {
       if (columnOnCurrentLine < style.maxColumn || {
             val commentExceedsLineLength =
-              tok.right.isInstanceOf[Comment] &&
+              tok.right.is[Comment] &&
               tok.right.syntax.length >= (style.maxColumn - newIndent)
             commentExceedsLineLength && split.modification.isNewline
           }) {

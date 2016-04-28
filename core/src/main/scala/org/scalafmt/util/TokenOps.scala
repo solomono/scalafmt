@@ -51,12 +51,12 @@ object TokenOps {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 ||
-      (isDocstring(tok.right) && !tok.left.isInstanceOf[Comment])
+      (isDocstring(tok.right) && !tok.left.is[Comment])
     }
   }
 
   def isDocstring(token: Token): Boolean = {
-    token.isInstanceOf[Comment] && token.syntax.startsWith("/**")
+    token.is[Comment] && token.syntax.startsWith("/**")
   }
 
   def lastToken(tree: Tree): Token = {
@@ -72,7 +72,7 @@ object TokenOps {
     between.lastOption.exists(_.is[LF])
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
-    formatToken.right.isInstanceOf[Comment] &&
+    formatToken.right.is[Comment] &&
     formatToken.right.syntax.startsWith("//") &&
     endsWithNoIndent(formatToken.between)
 
@@ -136,7 +136,7 @@ object TokenOps {
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits)
-          if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
+          if !tok.right.is[EOF] && tok.right.end <= expire.end &&
           exclude.forall(!_.contains(tok.left.start)) &&
           (disallowInlineComments || !isInlineComment(tok.left)) =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
