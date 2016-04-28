@@ -716,9 +716,8 @@ class Router(formatOps: FormatOps) {
         )
 
       // Var args
-      case FormatToken(_, asterisk @ Ident(_), _)
-          if asterisk.syntax == "*" &&
-          rightOwner.isInstanceOf[Type.Arg.Repeated] =>
+      case FormatToken(_, Ident("*"), _)
+          if rightOwner.isInstanceOf[Type.Arg.Repeated] =>
         Seq(
             Split(NoSplit, 0)
         )
@@ -775,8 +774,8 @@ class Router(formatOps: FormatOps) {
         )
 
       // Pat
-      case tok @ FormatToken(or @ Ident(_), _, _)
-          if or.syntax == "|" && leftOwner.isInstanceOf[Pat.Alternative] =>
+      case tok @ FormatToken(Ident("|"), _, _)
+          if leftOwner.isInstanceOf[Pat.Alternative] =>
         Seq(
             Split(Space, 0),
             Split(Newline, 1)
@@ -913,9 +912,8 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Space, 0)
         )
-      case FormatToken(Underscore(), asterisk @ Ident(_), _)
-          if asterisk.syntax == "*" &&
-          prev(formatToken).left.is[Colon] =>
+      case FormatToken(Underscore(), asterisk @ Ident("*"), _)
+          if prev(formatToken).left.is[Colon] =>
         Seq(
             Split(NoSplit, 0)
         )
