@@ -5,7 +5,8 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 @classifier
-trait Keyword {
+trait Keyword
+object Keyword {
   def unapply(token: Token): Boolean = {
     token.is[KwAbstract] || token.is[KwCase] || token.is[KwCatch] || token.is[KwClass] ||
     token.is[KwDef] || token.is[KwDo] || token.is[KwElse] || token.is[KwExtends] ||
@@ -21,7 +22,8 @@ trait Keyword {
 }
 
 @classifier
-trait Delim {
+trait Delim
+object Delim {
   def unapply(token: Token): Boolean = {
     token.is[Hash] || token.is[Colon] || token.is[Viewbound] || token.is[LeftArrow] ||
     token.is[Subtype] || token.is[Equals] || token.is[RightArrow] || token.is[Supertype] ||
@@ -32,7 +34,8 @@ trait Delim {
 }
 
 @classifier
-trait Modifier {
+trait Modifier
+object Modifier {
   def unapply(token: Token): Boolean = {
     token.is[KwAbstract] || token.is[KwFinal] ||
     token.is[KwSealed] || token.is[KwImplicit] ||
@@ -42,7 +45,8 @@ trait Modifier {
 }
 
 @classifier
-trait Literal {
+trait Literal
+object Literal {
   def unapply(token: Token): Boolean = {
     token.is[Constant.Int] || token.is[Constant.Long] ||
     token.is[Constant.Float] || token.is[Constant.Double] ||
@@ -53,7 +57,8 @@ trait Literal {
 }
 
 @classifier
-trait Whitespace {
+trait Whitespace
+object Whitespace {
   def unapply(token: Token): Boolean = {
     token.is[Space] || token.is[Tab] ||
     token.is[CR] || token.is[LF] ||
@@ -62,7 +67,8 @@ trait Whitespace {
 }
 
 @classifier
-trait Trivia {
+trait Trivia
+object Trivia {
   def unapply(token: Token): Boolean = {
     token.is[Whitespace] || token.is[Comment]
   }
