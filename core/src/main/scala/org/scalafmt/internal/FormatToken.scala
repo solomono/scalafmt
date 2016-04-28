@@ -25,7 +25,7 @@ case class FormatToken(left: Token,
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true
-    else range.exists(_.contains(right.position.end.line))
+    else range.exists(_.contains(right.pos.end.line))
   }
 
   /**
