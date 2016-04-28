@@ -61,7 +61,7 @@ object TokenOps {
 
   def lastToken(tree: Tree): Token = {
     val lastIndex = tree.tokens.lastIndexWhere {
-      case _: Trivia | _: EOF => false
+      case Trivia() | _: EOF => false
       case _ => true
     }
     if (lastIndex == -1) tree.tokens.last
