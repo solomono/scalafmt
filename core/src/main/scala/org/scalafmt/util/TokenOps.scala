@@ -32,7 +32,7 @@ object TokenOps {
     * identifier for the token inside this source file.
     *
     * The hash code works like this this:
-    * Top 8 bits go to privateTag, a unique identifier for the tokens class.
+    * Top 8 bits go to a hashCode of productPrefix, a unique identifier for the tokens class.
     * Next 28 bits go to the tokens **start** offset byte.
     * Final 28 bits go to the tokens **end** offset byte.
     *
@@ -42,7 +42,7 @@ object TokenOps {
   @inline
   def hash(token: Token): TokenHash = {
     val longHash: Long =
-      (token.privateTag.toLong << (62 - 8)) |
+      (token.productPrefix.hashCode.toLong << (62 - 8)) |
       (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
