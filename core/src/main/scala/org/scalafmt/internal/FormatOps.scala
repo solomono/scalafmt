@@ -371,7 +371,7 @@ class FormatOps(val tree: Tree,
   }
   def getApplyIndent(leftOwner: Tree): Length = leftOwner match {
     case _: Pat => Num(0) // Indentation already provided by case.
-    case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
+    case x if isDefnSite(x) && !x.is[Type.Apply] =>
       if (style.binPackParameters) Num(0)
       else Num(style.continuationIndentDefnSite)
     case _ => Num(style.continuationIndentCallSite)

@@ -34,7 +34,7 @@ object TreeOps {
       case (x, 0) => x
       case (enum: Enumerator.Guard, i) =>
         // Only guard that follows another guards starts a statement.
-        if (enums(i - 1).isInstanceOf[Enumerator.Guard]) {
+        if (enums(i - 1).is[Enumerator.Guard]) {
           ret += enum
         }
       case (x, _) => ret += x
@@ -79,10 +79,10 @@ object TreeOps {
 
     def addDefn[T : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
-      val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
+      val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
       val firstNonAnnotation: Token = mods.collectFirst {
-        case x if !x.isInstanceOf[Mod.Annot] =>
+        case x if !x.is[Mod.Annot] =>
           // Non-annotation modifier, for example `sealed`/`abstract`
           x.tokens.head
       }.getOrElse {
@@ -209,7 +209,7 @@ object TreeOps {
         _: Defn.Class | _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type |
         _: Type.Apply | _: Type.Param =>
       true
-    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+    case x: Ctor.Primary if x.parent.exists(_.is[Defn.Class]) =>
       true
     case _ => false
   }
@@ -299,7 +299,7 @@ object TreeOps {
 
   def startsSelectChain(tree: Tree): Boolean = tree match {
     case select: Term.Select =>
-      !(existsChild(_.isInstanceOf[Term.Select])(select) &&
+      !(existsChild(_.is[Term.Select])(select) &&
           existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
     case _ => false
   }
@@ -336,8 +336,8 @@ object TreeOps {
   def findSiblingGuard(
       generator: Enumerator.Generator): Option[Enumerator.Guard] = {
     for {
-      parent <- generator.parent if parent.isInstanceOf[Term.For] ||
-               parent.isInstanceOf[Term.ForYield]
+      parent <- generator.parent if parent.is[Term.For] ||
+               parent.is[Term.ForYield]
       sibling <- {
         val enums = parent match {
           case p: Term.For => p.enums
@@ -349,7 +349,7 @@ object TreeOps {
               s"Generator $generator is part of parents enums.")
         enums
           .drop(i + 1)
-          .takeWhile(_.isInstanceOf[Enumerator.Guard])
+          .takeWhile(_.is[Enumerator.Guard])
           .lastOption
           .asInstanceOf[Option[Enumerator.Guard]]
       }
@@ -376,7 +376,7 @@ object TreeOps {
     first.body match {
       case child: Term.Function => lastLambda(child)
       case block: Term.Block
-          if block.stats.headOption.exists(_.isInstanceOf[Term.Function]) =>
+          if block.stats.headOption.exists(_.is[Term.Function]) =>
         lastLambda(block.stats.head.asInstanceOf[Term.Function])
       case _ => first
     }
