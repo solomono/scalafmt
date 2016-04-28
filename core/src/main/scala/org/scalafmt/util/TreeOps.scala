@@ -60,7 +60,7 @@ object TreeOps {
   def getDequeueSpots(tree: Tree): Set[TokenHash] = {
     val ret = Set.newBuilder[TokenHash]
     tree.tokens.foreach {
-      case t @ Else() =>
+      case t @ KwElse() =>
         ret += hash(t)
       case _ =>
     }
