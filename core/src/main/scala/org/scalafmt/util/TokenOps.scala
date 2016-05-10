@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import scala.meta.dialects.Scala210
+
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
@@ -64,7 +66,7 @@ object TokenOps {
       case _ => true
     }
     if (lastIndex == -1) tree.tokens.last
-    else tree.tokens(lastIndex)
+    else tree.tokens(Scala210)(lastIndex)
   }
 
   def endsWithNoIndent(between: Vector[Token]): Boolean =

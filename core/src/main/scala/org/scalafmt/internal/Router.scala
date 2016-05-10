@@ -78,7 +78,7 @@ class Router(formatOps: FormatOps) {
               .withIndent(-1, end, Left),
             Split(NoSplit, 0, ignoreIf = isStripMargin).withPolicy(policy)
         )
-      case FormatToken(Interpolation.Id() | Interpolation.Part(_) |
+      case FormatToken(Interpolation.Id(_) | Interpolation.Part(_) |
                        Interpolation.Start() | Interpolation.SpliceStart(),
                        _,
                        _) =>
@@ -890,11 +890,11 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1).withIndent(2, lastToken, Left)
         )
       // Interpolation
-      case FormatToken(_, Interpolation.Id() | Xml.Start(), _) =>
+      case FormatToken(_, Interpolation.Id(_) | Xml.Start(), _) =>
         Seq(
             Split(Space, 0)
         )
-      case FormatToken(Interpolation.Id() | Xml.Start(), _, _) =>
+      case FormatToken(Interpolation.Id(_) | Xml.Start(), _, _) =>
         Seq(
             Split(NoSplit, 0)
         )

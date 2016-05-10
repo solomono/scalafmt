@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.Import
 import scala.meta.Pat
+import scala.meta.dialects.Scala210
 import scala.meta.tokens.Tokens
 
 import org.scalafmt.Error.CaseMissingArrow
@@ -321,7 +322,7 @@ class FormatOps(val tree: Tree,
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {
     val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[Dot])
     val lastDot =
-      if (lastDotIndex != -1) chain.last.tokens(lastDotIndex).asInstanceOf[Dot]
+      if (lastDotIndex != -1) chain.last.tokens(Scala210)(lastDotIndex).asInstanceOf[Dot]
       else
         throw new IllegalStateException(s"Missing . in select ${chain.last}")
     rhsOptimalToken(
