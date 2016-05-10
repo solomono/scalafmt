@@ -50,8 +50,7 @@ object TokenOps {
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
-      newlines > 1 ||
-      (isDocstring(tok.right) && !tok.left.is[Comment])
+      newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     }
   }
 

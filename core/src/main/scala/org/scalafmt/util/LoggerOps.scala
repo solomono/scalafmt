@@ -42,7 +42,8 @@ object LoggerOps {
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
   def log(t: Tree, tokensOnly: Boolean = false): String = {
-    val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
+    val tokens =
+      s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
     else s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
             |SOURCE: $t

@@ -85,8 +85,7 @@ class BestFirstSearch(
     val leftLeftOwner = ownersMap(hash(leftLeft))
     val splitToken = tokens(curr.splits.length)
     recurseOnBlocks && isInsideNoOptZone(splitToken) &&
-    leftLeft.is[LeftBrace] &&
-    matchingParentheses(hash(leftLeft)) != stop && {
+    leftLeft.is[LeftBrace] && matchingParentheses(hash(leftLeft)) != stop && {
       // Block must span at least 3 lines to be worth recursing.
       val close = matchingParentheses(hash(leftLeft))
       // TODO(olafur) magic number

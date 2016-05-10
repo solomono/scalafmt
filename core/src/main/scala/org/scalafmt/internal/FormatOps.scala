@@ -123,7 +123,8 @@ class FormatOps(val tree: Tree,
 
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
-    case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() | RightArrow()
+    case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |
+        RightArrow()
         if next(start) != start &&
         !owners(start.right).tokens.headOption.contains(start.right) =>
       rhsOptimalToken(next(start))
@@ -151,7 +152,8 @@ class FormatOps(val tree: Tree,
     case string: Constant.String =>
       string.syntax.startsWith("\"\"\"") && {
         val afterString = next(leftTok2tok(string))
-        afterString.left.syntax == "." && afterString.right.syntax == "stripMargin"
+        afterString.left.syntax == "." &&
+        afterString.right.syntax == "stripMargin"
       }
     case _ => false
   }
@@ -159,8 +161,8 @@ class FormatOps(val tree: Tree,
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-    (tok.right.is[Comment] &&
-        tok.between.exists(_.is[LF]) && startsStatement(next(tok)))
+    (tok.right.is[Comment] && tok.between.exists(_.is[LF]) &&
+        startsStatement(next(tok)))
   }
 
   def parensRange(open: Token): Range =
@@ -211,8 +213,7 @@ class FormatOps(val tree: Tree,
           // TODO(olafur) what the right { decides to be single line?
           !right.is[LeftBrace] &&
           // If comment is bound to comma, see unit/Comment.
-          (!right.is[Comment] ||
-              between.exists(_.is[LF])) =>
+          (!right.is[Comment] || between.exists(_.is[LF])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)
   }

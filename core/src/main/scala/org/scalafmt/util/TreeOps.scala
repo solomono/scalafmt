@@ -127,9 +127,11 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Token]
     var stack = List.empty[Token]
     tokens.foreach {
-      case open @ (LeftBrace() | LeftBracket() | LeftParen() | Interpolation.Start()) =>
+      case open @ (LeftBrace() | LeftBracket() | LeftParen() |
+          Interpolation.Start()) =>
         stack = open :: stack
-      case close @ (RightBrace() | RightBracket() | RightParen() | Interpolation.End()) =>
+      case close @ (RightBrace() | RightBracket() | RightParen() |
+          Interpolation.End()) =>
         val open = stack.head
         assertValidParens(open, close)
         ret += hash(open) -> close
