@@ -271,6 +271,24 @@ class FormatOps(val tree: Tree,
     template.tokens.find(x => x.is[LeftBrace] && owners(x) == template)
   }
 
+  def safeFilterNewlines(splits: Seq[Split])(
+      implicit line: sourcecode.Line): Seq[Split] = {
+    val filtered = splits.filter(_.modification.isNewline)
+    if (filtered.nonEmpty) filtered
+    else Seq(Split(Newline, 0))
+  }
+
+  final def getElseChain(term: Term.If): Vector[KwElse] = {
+    term.tokens.find(x => x.is[KwElse] && owners(x) == term) match {
+      case Some(els @ KwElse()) =>
+        val rest = term.elsep match {
+          case t: Term.If => getElseChain(t)
+          case _ => Vector.empty[KwElse]
+        }
+        els +: rest
+      case _ => Vector.empty[KwElse]
+    }
+  }
   def lastTokenInChain(chain: Vector[Term.Select]): Token = {
     if (chain.length == 1) lastToken(chain.last)
     else chainOptimalToken(chain)

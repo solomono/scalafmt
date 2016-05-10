@@ -652,9 +652,30 @@ class Router(formatOps: FormatOps) {
             }, expire.end))
         )
       // If
+      case FormatToken(left @ KwIf(), _, _)
+          if prev(formatToken).left.isNot[KwElse] && leftOwner.is[Term.If] =>
+        val owner = leftOwner.asInstanceOf[Term.If]
+        val expire = owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
+        val elses = getElseChain(owner)
+        val breakOnlyBeforeElse = Policy({
+          case Decision(t, s)
+              if elses.contains(t.right) && t.left.isNot[RightBrace] =>
+            Decision(t, safeFilterNewlines(s))
+        }, expire.end)
+        Seq(
+            Split(Space, 0)
+              .withOptimalToken(expire, killOnFail = true)
+              .withPolicy(SingleLineBlock(expire)),
+            Split(Space, 1).withPolicy(breakOnlyBeforeElse)
+        )
       case FormatToken(open @ LeftParen(), _, _) if leftOwner.is[Term.If] =>
         val close = matchingParentheses(hash(open))
-        val penalizeNewlines = penalizeNewlineByNesting(open, close)
+        val penalizeNewlines =
+          // Only penalize inside condition parentheses, open could be superflouous.
+          // Example, we only want to penalize for (condition && true):
+          // foo + (if (condition && true) 1 else 2)
+          if (isSuperfluousParenthesis(open, leftOwner)) NoPolicy
+          else penalizeNewlineByNesting(open, close)
         Seq(
             Split(NoSplit, 0)
               .withIndent(StateColumn, close, Left)
@@ -675,7 +696,7 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0, ignoreIf = attachedComment)
               .withIndent(2, expire, Left)
               .withPolicy(SingleLineBlock(expire)),
-            Split(newlineModification, 1).withIndent(2, expire, Left)
+            Split(newlineModification, 3).withIndent(2, expire, Left)
         )
       case tok @ FormatToken(RightBrace(), els @ KwElse(), _) =>
         Seq(

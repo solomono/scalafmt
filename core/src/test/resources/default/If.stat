@@ -74,7 +74,8 @@ def toString(): String = {
 object a {
   def toString(): String = {
     (if (isInterface()) "is interface "
-     else if (isPrimitive()) "" else "class ") + getName()
+     else if (isPrimitive()) ""
+     else "class ") + getName()
   }
 }
 <<< pruneNonOptimal bug
@@ -95,8 +96,7 @@ object a {
                 {
                   (if (hasFlag("-")) FormattableFlags.LEFT_JUSTIFY else 0) |
                   (if (hasFlag("#")) FormattableFlags.ALTERNATE else 0) |
-                  (if (isConversionUpperCase) FormattableFlags.UPPERCASE
-                   else 0)
+                  (if (isConversionUpperCase) FormattableFlags.UPPERCASE else 0)
                 }
               }
             }
@@ -141,3 +141,21 @@ if (fullInfo)
 +                                        env scheduleJsonView visible))
 +            } map NoCache
 >>>
+x
+<<< return else intellij
+  val element = if (elements(0) == null || !elements(0).getParent.isInstanceOf[ScXmlPairedTag]) return else
+      elements(0).getParent.asInstanceOf[ScXmlPairedTag]
+>>>
+val element =
+  if (elements(0) == null ||
+      !elements(0).getParent.isInstanceOf[ScXmlPairedTag]) return
+  else elements(0).getParent.asInstanceOf[ScXmlPairedTag]
+<<< msg akka
+ val msg = s"CapabilityFlag `${flag.name}` was turned `" +
+      (if (flag.value) "on" else "off") +
+      "`. " + (if (!flag.value) "To enable the related tests override it w" else "")
+>>>
+val msg =
+  s"CapabilityFlag `${flag.name}` was turned `" + (if (flag.value) "on"
+                                                   else "off") + "`. " +
+  (if (!flag.value) "To enable the related tests override it w" else "")

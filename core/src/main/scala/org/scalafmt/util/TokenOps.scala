@@ -78,7 +78,7 @@ object TokenOps {
   val booleanOperators = Set("&&", "||")
 
   // TODO(olafur) more general solution?
-  val newlineOkOperators = Set("+", "-")
+  val newlineOkOperators = Set("+", "-", "|")
 
   def isBoolOperator(token: Token): Boolean =
     booleanOperators.contains(token.syntax)
