@@ -604,7 +604,9 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
       case tok @ FormatToken(op @ Ident(_), _, _) if leftOwner.parent.exists {
-            case unary: Term.ApplyUnary => unary.op.tokens.head == op
+            case unary: Term.ApplyUnary =>
+//              logger.elem(unary.op.tokens.head.structure, op.structure, op == unary.op.tokens.head)
+              unary.op.tokens.head == op
             case _ => false
           } =>
         Seq(
