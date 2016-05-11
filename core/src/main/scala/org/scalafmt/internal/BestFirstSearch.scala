@@ -178,7 +178,7 @@ class BestFirstSearch(
         if (dequeueOnNewStatements &&
             dequeueSpots.contains(hash(splitToken.left)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken)) &&
-            curr.splits.last.modification.isNewline) {
+            curr.splits.lastOption.exists(_.modification.isNewline)) {
           Q.dequeueAll
         }
 
