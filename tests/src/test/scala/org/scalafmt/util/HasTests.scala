@@ -40,7 +40,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         case _ =>
       }
   )
-  val testDir = "core/src/test/resources"
+  val testDir = "tests/src/test/resources"
 
   def tests: Seq[DiffTest]
 

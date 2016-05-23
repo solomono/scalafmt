@@ -103,7 +103,7 @@ lazy val root = project.in(file("."))
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, cli, benchmarks, scalafmtSbt, readme)
+  ).aggregate(core, cli, benchmarks, scalafmtSbt, tests, readme)
   .dependsOn(core)
 
 
@@ -113,17 +113,7 @@ lazy val core = project
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.1.1",
-      "org.scalameta" %% "scalameta" % Deps.scalameta,
-
-      // Test dependencies
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
-      "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
-      "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
-      "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
-      "org.apache.commons" % "commons-math3" % "3.6" % "test",
-      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
+      "org.scalameta" %% "scalameta" % Deps.scalameta
     )
   )
 
@@ -137,6 +127,25 @@ lazy val cli = project
         "com.github.scopt" %% "scopt" % "3.3.0"
       )
     ).dependsOn(core % "compile->compile;test->test")
+
+lazy val tests = project
+    .settings(allSettings)
+    .settings(noPublish)
+    .settings(
+      moduleName := "scalafmt-tests",
+      libraryDependencies ++= Seq(
+        // Test dependencies
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+        "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+        "ch.qos.logback" % "logback-classic" % "1.1.6",
+        "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+        "com.ibm" %% "couchdb-scala" % "0.6.0",
+        "com.lihaoyi" %% "scalatags" % "0.5.4",
+        "org.apache.commons" % "commons-math3" % "3.6",
+        "org.scalatest" %% "scalatest" % Deps.scalatest
+      )
+
+    ).dependsOn(core, cli)
 
 
 lazy val scalafmtSbt = project
