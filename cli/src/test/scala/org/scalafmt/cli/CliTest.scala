@@ -68,7 +68,7 @@ class CliTest extends FunSuite with DiffAssertions {
     assert(obtained.exists(_.style == expectedCustomStyle))
   }
 
-  test("scalafmt -i --file tmpFile") {
+  ignore("scalafmt -i --file tmpFile") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config.default.copy(

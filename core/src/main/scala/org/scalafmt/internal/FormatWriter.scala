@@ -100,6 +100,17 @@ class FormatWriter(formatOps: FormatOps) {
       callback: (State, FormatToken, String) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, style, debug)
+
+    def getLineLength(i: Int): Int = {
+      locations
+        .drop(i + 1)
+        .find(_.split.modification.isNewline)
+        .map(_.state.column)
+        .getOrElse(0)
+    }
+
+    val col = locations.maxBy(_.state.column).state.column
+    logger.elem(col)
     val tokenAligns = alignmentTokens(locations, style).withDefaultValue(0)
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
@@ -111,8 +122,8 @@ class FormatWriter(formatOps: FormatOps) {
               state.indentation >= previous.state.column =>
             ""
           case nl: NewlineT
-            if nl.acceptSpace &&
-                state.indentation >= previous.state.column =>
+              if nl.acceptSpace &&
+              state.indentation >= previous.state.column =>
             " "
           case nl: NewlineT =>
             val newline =
@@ -120,7 +131,8 @@ class FormatWriter(formatOps: FormatOps) {
               else "\n"
             val indentation =
               if (nl.noIndent) ""
-              else " " * state.indentation
+              else " " * (col - state.indentation - getLineLength(i))
+
             newline + indentation
           case Provided(literal) => literal
           case NoSplit => ""
