@@ -36,15 +36,29 @@ class CommentTest extends FunSuite with DiffAssertions {
     |
     |// scalastyle:off number.of.types
     |@enum trait CampingLocation {
-    |  object Seaside
+    |  // Foobar
+    |  object Seaside // trailing
     |  object Mountains
     |}
   """.stripMargin.parse[Source].get
 
-  case class AssociatedComments(
-      leading: Map[Token, Seq[Comment]],
-      trailing: Map[Token, Seq[Comment]]
-  )
+  case class AssociatedComments(leadingMap: Map[Token, Seq[Comment]],
+                                trailingMap: Map[Token, Seq[Comment]]) {
+    def leading(tree: Tree): Seq[Comment] =
+      (for {
+        token <- tree.tokens.headOption
+        comments <- leadingMap.get(token)
+      } yield comments).getOrElse(Seq.empty[Comment])
+
+    def trailing(tree: Tree): Seq[Comment] =
+      (for {
+        token <- tree.tokens.lastOption
+        comments <- trailingMap.get(token)
+      } yield comments).getOrElse(Seq.empty[Comment])
+
+    def contains(tree: Tree) =
+      trailing(tree).nonEmpty || leading(tree).nonEmpty
+  }
 
   def getAssociatedComments(tokens: Tokens): AssociatedComments = {
     import scala.meta.tokens.Token._
@@ -78,8 +92,13 @@ class CommentTest extends FunSuite with DiffAssertions {
   }
 
   import org.scalafmt.util.LoggerOps._
-  val t = getAssociatedComments(tree.tokens)
-  logger.elem(t.leading)
-  logger.elem(t.trailing)
+  val comments = getAssociatedComments(tree.tokens)
+  tree.transform {
+    case t: Tree if comments.contains(t) =>
+      logger.elem(t, t.getClass, comments.leading(t), comments.trailing(t))
+      t
+  }
+  logger.elem(comments.leadingMap)
+  logger.elem(comments.trailingMap)
 //  println(tree.show[Structure])
 }
