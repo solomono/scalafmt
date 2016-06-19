@@ -196,7 +196,7 @@ val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set.empt
         Set.empty[Token])
   }
 }
-<<< property scalding
+<<< ONLY property scalding
   writeRead(
     // Use list because Array has a shitty toString
     { (b: List[Byte], os) => os.writePosVarInt(b.size); os.writeBytes(b.toArray) },

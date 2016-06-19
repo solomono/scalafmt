@@ -561,9 +561,15 @@ class Router(formatOps: FormatOps) {
         )
 
       // non-statement starting curly brace
-      case FormatToken(_, _: `{`, between) =>
+      case FormatToken(left, open: `{`, between) =>
+        val close = matchingParentheses(hash(open))
+        val isComma = left.isInstanceOf[`,`]
+        logger.elem(left, isComma)
         Seq(
-            Split(Space, 0)
+            Split(Newline, 0, ignoreIf = !isComma)
+              .withOptimalToken(close, killOnFail = true)
+              .withPolicy(SingleLineBlock(close)),
+          Split(Space, 0)
         )
 
       // Delim
