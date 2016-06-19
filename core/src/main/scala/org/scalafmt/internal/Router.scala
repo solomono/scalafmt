@@ -510,7 +510,6 @@ class Router(formatOps: FormatOps) {
           case _ => false
         }
 
-        logger.elem()
         Seq(
             Split(modification,
                   0,
@@ -566,7 +565,7 @@ class Router(formatOps: FormatOps) {
         val isComma = left.isInstanceOf[`,`]
         logger.elem(left, isComma)
         Seq(
-            Split(Newline, 0, ignoreIf = !isComma)
+            Split(Newline, 0, ignoreIf = !isComma || newlines == 0)
               .withOptimalToken(close, killOnFail = true)
               .withPolicy(SingleLineBlock(close)),
           Split(Space, 0)
