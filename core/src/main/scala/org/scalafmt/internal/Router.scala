@@ -515,11 +515,16 @@ class Router(formatOps: FormatOps) {
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
           else NoSplit
 
-        val newlineModification: Modification =
-          if (right.isInstanceOf[Comment] && newlinesBetween(between) == 0)
-            Space
-          else if (right.isInstanceOf[`{`]) NoSplit
-          else Newline
+        val newlineModification: Modification = right match {
+          case _: Comment if newlinesBetween(between) == 0 => Space
+          case _: `{` => NoSplit
+          case t: Literal.String if t.code.startsWith("\"\"\"") =>
+            NewlineT(acceptNoSplit = true)
+          case t: Interpolation.Id
+              if next(formatToken).right.code.startsWith("\"\"\"") =>
+            NewlineT(acceptNoSplit = true)
+          case _ => Newline
+        }
 
         val charactersInside = (close.start - open.end) - 2
 
