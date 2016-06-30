@@ -676,7 +676,7 @@ def fillInStackTrace(): Throwable =
                 files => files.par.foreach(handlefile(writeformatted)))
   }
 }
-<<< scalatags triple quote
+<<< ONLY scalatags triple quote
     div(
         p(
             """Formatting output from scalafmt's test suite.

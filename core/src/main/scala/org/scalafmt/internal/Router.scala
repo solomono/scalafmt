@@ -518,11 +518,11 @@ class Router(formatOps: FormatOps) {
         val newlineModification: Modification = right match {
           case _: Comment if newlinesBetween(between) == 0 => Space
           case _: `{` => NoSplit
-          case t: Literal.String if t.code.startsWith("\"\"\"") =>
-            NewlineT(acceptNoSplit = true)
-          case t: Interpolation.Id
-              if next(formatToken).right.code.startsWith("\"\"\"") =>
-            NewlineT(acceptNoSplit = true)
+//          case t: Literal.String if t.code.startsWith("\"\"\"") =>
+//            NewlineT(acceptNoSplit = true)
+//          case t: Interpolation.Id
+//              if next(formatToken).right.code.startsWith("\"\"\"") =>
+//            NewlineT(acceptNoSplit = true)
           case _ => Newline
         }
 
